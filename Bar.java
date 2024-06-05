@@ -14,7 +14,7 @@ public class Bar {
 
         private String query;
         private Statement stat;
-
+        private String barName;
         private static Bar instance;
 
         private Bar() {};
@@ -29,7 +29,7 @@ public class Bar {
         //Class FrameLogin
         public void Login(String username, String password) throws WrongDataError {
     		try (Connection conn = DriverManager.getConnection(url, DBUsername, DBPassword)) {
-    			
+    			setBarName(username);
     			stat = conn.createStatement();
 
     			query = "SELECT * FROM User WHERE Name = '" + username + "' AND Password = '" + password + "'";
@@ -57,11 +57,24 @@ public class Bar {
         }
         
         //PanelBManage-------------------------
-        public void startOfManage(ArrayList<String> infoDetails) throws WrongDataError {
+        public void setBarName(String Username) {
+        	barName = Username;
+        }
+        
+        public String getBarName() {
+        	return barName;
+        }
+        
+        public void startOfManage(ArrayList<String> infoTitles, ArrayList<String> infoDetails) throws WrongDataError {
         	try(Connection conn = DriverManager.getConnection(url, DBUsername, DBPassword)) {
         		stat = conn.createStatement();
-        		String query = "SELECT count(*) FROM information_schema.columns"
-        		for(i = 0; i < )
+        		
+        		for(int i = 0; i < infoTitles.size(); i++) {
+        			String query = "SELECT " + infoTitles.get(i) + " FROM Bar WHERE BarName = '" + getBarName() + "'";
+        			ResultSet rs = stat.executeQuery(query);
+        			rs.next();
+        			infoDetails.add(rs.getString(infoTitles.get(i)));
+        		}
         	}catch (SQLException e) {
         		e.printStackTrace();
         	}
@@ -71,8 +84,32 @@ public class Bar {
         	try(Connection conn = DriverManager.getConnection(url, DBUsername, DBPassword)) {
         		stat = conn.createStatement();
         		for(int i = 0; i < infoTitles.size(); i++) {
-        			String query = "UPDATE Bar SET " + infoTitles.get(i) + " = '" + infoDetails.get(i) + "' WHERE ";
+        			String query = "UPDATE Bar SET " + infoTitles.get(i) + " = '" + infoDetails.get(i) + "' WHERE BarName = '" + getBarName() + "'";
         			stat.execute(query);
+        		}
+        	}catch (SQLException e) {
+        		e.printStackTrace();
+        	}
+        }
+        
+        //PanelBAnalysis----------------------
+        public String showResultSet(String sort) throws WrongDataError{
+        	try(Connection conn = DriverManager.getConnection(url, DBUsername, DBPassword)) {
+        		stat = conn.createStatement();
+        		switch(sort) {
+        			case "Sales figures":
+        				String query = "SELECT Order.Item, sum(Order.total_Price) AS 'Sales figures', sum(Order.Amount) AS 'Sales volume', "
+        						+ "FROM Order JOIN Menu "
+        						+ "ON Order.BarName = Menu.BarName "
+        						//+ "AND Order.Item = Menu.Cocktail";
+        						+ "WHERE ";
+        				stat.executeQuery(query);
+        				//getString
+        			case "Sort2":
+        				
+        			case "Sort3":
+        				
+        			
         		}
         	}catch (SQLException e) {
         		e.printStackTrace();

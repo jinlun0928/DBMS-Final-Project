@@ -21,29 +21,27 @@ public class PanelBManage extends JPanel {
     }
 
     private void cComponent() {
-        lTitle = new JLabel("Test Bar name");
+        lTitle = new JLabel(Bar.getInstance().getBarName());
         lTitle.setFont(new Font("TimesRoman",Font.BOLD,30));
         //TODO: get from database
         pTitle = new JPanel();
         pTitle.add(lTitle);
         pTitle.setPreferredSize(new Dimension(500,100));
         
-        infoTitles.add("Bar name");
+        infoTitles.add("BarName");
         infoTitles.add("TA");
         infoTitles.add("Style");
         infoTitles.add("District");
-        infoTitles.add("Open time");
+        infoTitles.add("OpenTime");
         infoTitles.add("CloseTime");
-        infoTitles.add("Featured Activity");
+        infoTitles.add("Featured_Activity");
         //TODO: change to actual data;
         
-        infoDetails.add("Test bar name");
-        infoDetails.add("Test TA");
-        infoDetails.add("Test Style");
-        infoDetails.add("Test District");
-        infoDetails.add("Test Open time");
-        infoDetails.add("Test CloseTime");
-        infoDetails.add("Test Featured Activity");
+        try {
+            Bar.getInstance().startOfManage(infoTitles, infoDetails);
+        } catch (WrongDataError e) {
+            JOptionPane.showMessageDialog(null, e, "Error", JOptionPane.ERROR_MESSAGE);
+        }
         //TODO: change to actual data;
 
         pContent = new JPanel();
@@ -93,7 +91,11 @@ public class PanelBManage extends JPanel {
                 int reply = JOptionPane.showConfirmDialog(pMain, "Submit?", "Submitting...", JOptionPane.YES_NO_OPTION);
                 if (reply == JOptionPane.YES_OPTION) {
                     //TODO: update database
-                    ManageUpdateDB()
+                	try {
+                        Bar.getInstance().ManageUpdateDB(infoTitles, infoDetails);
+                    } catch (WrongDataError e) {
+                        JOptionPane.showMessageDialog(null, e, "Error", JOptionPane.ERROR_MESSAGE);
+                    }
                     JOptionPane.showMessageDialog(null, "Success!", "Success", JOptionPane.INFORMATION_MESSAGE);
                 } else {
                     return;

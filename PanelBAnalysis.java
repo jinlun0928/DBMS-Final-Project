@@ -34,11 +34,12 @@ public class PanelBAnalysis extends JPanel{
     }
 
     private void cButton() {
-        bt_Sort1 = new JButton("Sort1");
+        bt_Sort1 = new JButton("Sales figures");
         bt_Sort1.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 //TODO: generate text and update
-                //ta_content.set()
+            	
+                ta_content.set(Bar.getInstance().showResultSet());
             }
         });
 

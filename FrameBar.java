@@ -3,207 +3,130 @@ import java.awt.event.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.*;
+import java.sql.Statement;
+
 import javax.swing.*;
+import java.util.ArrayList;
 
+public class FrameBar extends JFrame {
+    private JButton bt_Manage, bt_Analytics, bt_View, bt_PlaceHolder, bt_LogOut;
+    private ArrayList<JButton> btList = new ArrayList<>();
+    private JPanel pWestbtGroup;
 
-public class FrameLogin extends JFrame {
-    private JTextField username_input = new JTextField(20);
-    private JPasswordField password_input = new JPasswordField(20);
-    private JPanel pUser,pPass,pInput,pButton,pNorthrbt;
-    private JButton bt_SignUp,bt_LogIn,bt_CheckUserName,bt_CheckPassWord;
-    private JCheckBox cb_pVisible;
-    private JRadioButton rbt_Customer,rbt_Bar;
-    private ButtonGroup rbtGroup;
-    Statement stat;    
+    private int control = 0;
+    private JPanel pMain = new JPanel(new BorderLayout());  // Changed layout to BorderLayout for pMain
+    Statement stat;
     
-    public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				
-				String server = "jdbc:mysql://140.119.19.73:3315/";
-				String database = "111306037"; // change to your own database
-				String url = server + database + "?useSSL=false";
-				String username = "111306037"; // change to your own user name
-				String password = "58g95"; // change to your own password　　　　
-				
-				try {
-					Connection conn = DriverManager.getConnection(url, username, password);
-					System.out.println("DB Connected");
-					
-					FrameLogin frame = new FrameLogin(conn);
-					frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-					frame.setVisible(true);
-			
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-    
-    public FrameLogin(Connection conn)throws SQLException {  
-    	
-        setTitle("Login");
-        setSize(400, 247);
+    public FrameBar(Connection conn) throws SQLException{
+        cButton();
+        cComponent();
+
+        setTitle("Customer");
+        setSize(1000, 618);
         setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        stat = conn.createStatement();
+
+        getContentPane().add(pWestbtGroup, BorderLayout.WEST);
+        getContentPane().add(pMain, BorderLayout.CENTER);
+
         cLayOut();
-    }  
-    
+        setVisible(true);
+        stat = conn.createStatement();
+    }
+
     private void cComponent() {
-        pUser = new JPanel(new FlowLayout(FlowLayout.CENTER,3,0));
-        pUser.add(new JLabel("Username: "));
-        pUser.add(username_input);
-        pUser.add(bt_CheckUserName);
-        bt_CheckUserName.setPreferredSize(new Dimension(80,20));
-
-        pPass = new JPanel(new FlowLayout(FlowLayout.CENTER,4,0));
-        pPass.add(new JLabel("Password: "));
-        pPass.add(password_input);
-        pPass.add(bt_CheckPassWord);
-        bt_CheckPassWord.setPreferredSize(new Dimension(80,20));
-        
-        pButton = new JPanel(new GridLayout(1,2,10,6));
-        pButton.add(bt_SignUp);
-        pButton.add(bt_LogIn);
-        
-        pButton.setPreferredSize(new Dimension(200,20));
-        
-        rbtGroup = new ButtonGroup();
-        rbtGroup.add(rbt_Customer);
-        rbtGroup.add(rbt_Bar);
-        pNorthrbt = new JPanel();
-        pNorthrbt.add(new JLabel("Select identity:"));
-        pNorthrbt.add(rbt_Customer);
-        pNorthrbt.add(rbt_Bar);
-        
-        pInput = new JPanel();
-        pInput.add(pUser);
-        pInput.add(pPass);
-        pInput.add(pButton);
-        pInput.add(cb_pVisible);
-        
+        pWestbtGroup = new JPanel();
+        pWestbtGroup.setLayout(new GridLayout(5, 1));
+        for (JButton bt : btList) {
+            pWestbtGroup.add(bt);
+        }
     }
-    
+
     private void cButton() {
-        bt_SignUp = new JButton("Sign up");
-        bt_SignUp.addActionListener(new ActionListener() {
+        bt_Manage = new JButton("Manage Info");
+        bt_Manage.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-                String username = username_input.getText();
-                String password = new String(password_input.getPassword());
-                
-                if (rbt_Customer.isSelected()) {
-                    //TODO: function_Customer
-                	try{
-                		String query = "INSERT INTO User (Name, Password, Type) "
-                		+ "VALUES('" + username + "', '" + password + "', 'Customer')";
-                		stat.execute(query);
-                	}catch(SQLException e) {
-                		e.printStackTrace();
-                	}
-                } else {
-                    //TODO: function_Bar
-                	try{
-                		String query = "INSERT INTO User (Name, Password, Type) "
-                		+ "VALUES('" + username + "', '" + password + "', 'Bar')";
-                		stat.execute(query);
-                	}catch(SQLException e) {
-                		e.printStackTrace();
-                	}
-                }
+                control = 0;
+                cLayOut();
             }
         });
-        
-        bt_LogIn = new JButton("Log in");
-        bt_LogIn.addActionListener(new ActionListener() {
+
+        bt_Analytics = new JButton("Analytics");
+        bt_Analytics.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-                String username = username_input.getText();
-                String password = new String(password_input.getPassword());
-                
-                if (rbt_Customer.isSelected()) {
-                    // Customer part.
-                } else {
-                    try {
-                        Bar.getInstance().Login(username, password);
-                    } catch (WrongDataError e) {
-                        JOptionPane.showMessageDialog(null, e, "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                }
+                control = 1;
+                cLayOut();
             }
         });
-        
 
-        bt_CheckUserName = new JButton("Check");
-        bt_CheckUserName.addActionListener(new ActionListener() {
+        bt_View = new JButton("View & Reply");
+        bt_View.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-                String username = username_input.getText();
-                
-              //function
-                try {
-                	String query = "SELECT Name FROM User WHERE Name = '" + username + "'";
-                	ResultSet rs = stat.executeQuery(query);
-                	if(rs.next()) {
-                		JOptionPane.showMessageDialog(null, "此名稱已有人使用", "無法使用", 0);
-                	}else {
-                		JOptionPane.showMessageDialog(null, "此名稱可以使用", "可以使用", 1);
-                	}
-                }catch(SQLException e) {
-                	e.printStackTrace();
-                }
+                control = 2;
+                cLayOut();
             }
         });
 
-        bt_CheckPassWord = new JButton("Check");
-        bt_CheckPassWord.addActionListener(new ActionListener() {
+        bt_PlaceHolder = new JButton();
+
+        bt_LogOut = new JButton("Log out");
+        bt_LogOut.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-                String password = new String(password_input.getPassword());
-
-                //function
-                try {
-                	String query = "SELECT Password FROM User WHERE Password = '" + password + "'";
-                	ResultSet rs = stat.executeQuery(query);
-                	if(rs.next()) {
-                		JOptionPane.showMessageDialog(null, "此密碼已有人使用", "無法使用", 0);
-                	}else {
-                		JOptionPane.showMessageDialog(null, "此密碼可以使用", "可以使用", 1);
-                	}
-                }catch(SQLException e) {
-                	e.printStackTrace();
+                int reply = JOptionPane.showConfirmDialog(pMain, "Log out?", "Logging out", JOptionPane.YES_NO_OPTION);
+                if (reply == JOptionPane.YES_OPTION) {
+    				try {
+    					Bar.getInstance().Logout();
+    				} catch (WrongDataError e) {
+    					// TODO Auto-generated catch block
+    					JOptionPane.showMessageDialog(null, e, "Error", JOptionPane.ERROR_MESSAGE);
+    				}
+                    
+                    setVisible(false);
                 }
             }
         });
 
-        rbt_Customer = new JRadioButton("Customer");
-        rbt_Customer.setSelected(true);
-        rbt_Bar = new JRadioButton("Bar");
-    }
-
-    private void cCheckBox() {
-        cb_pVisible = new JCheckBox("Show password");
-        password_input.setEchoChar('*');
-
-        cb_pVisible.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                if (cb_pVisible.isSelected()) {
-                    password_input.setEchoChar((char)0);
-                } else {
-                    password_input.setEchoChar('*');
-                }
-            }
-        });
+        btList.add(bt_Manage);
+        btList.add(bt_Analytics);
+        btList.add(bt_View);
+        btList.add(bt_PlaceHolder);
+        btList.add(bt_LogOut);
     }
 
     private void cLayOut() {
-        cButton();
-        cCheckBox();
-        cComponent();
-        
-        setLayout(new BorderLayout(30,20));
-        getContentPane().add(pNorthrbt,BorderLayout.NORTH);
-        getContentPane().add(pInput,BorderLayout.CENTER);
+        pMain.removeAll();  // Clear previous components
 
-        setVisible(true);
+        btResetAll();
+        switch (control) {
+            case 0:
+                JPanel panelBManage = new PanelBManage();
+                pMain.add(panelBManage, BorderLayout.CENTER);
+                
+                bt_Manage.setEnabled(false);
+                break;
+            case 1:
+                JPanel panelBAnlysis = new PanelBAnalysis();
+                pMain.add(panelBAnlysis, BorderLayout.CENTER);
+            
+                bt_Analytics.setEnabled(false);
+                break;
+            case 2:
+                JPanel panelBView = new PanelBView();
+                pMain.add(panelBView, BorderLayout.CENTER);
+
+                bt_View.setEnabled(false);
+                break;
+        }
+
+        pMain.revalidate();  // Refresh the panel
+        pMain.repaint();
+    }
+
+    private void btResetAll() {
+        for (JButton bt : btList) {
+            bt.setEnabled(true);
+        }
+        bt_LogOut.setBackground(new Color(250, 210, 210));
+        bt_PlaceHolder.setEnabled(false);
     }
 }
